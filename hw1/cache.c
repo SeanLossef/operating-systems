@@ -69,6 +69,8 @@ int main(int argc, char **argv) {
 		}
 	}
 	free(cache);
+	free(word);
+	fclose(file);
 
 	return 1;
 }
