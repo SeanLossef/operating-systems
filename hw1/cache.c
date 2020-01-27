@@ -14,12 +14,22 @@ int hash(char *word, int cachesize) {
 	return sum % cachesize;
 }
 
+void cache_set(char **cache, int h, char *val) {
+	*(cache + h) = val;
+}
+
 int main(int argc, char **argv) {
 
-	if (argc != 3)
-		return 0;
+	if (argc != 3) {
+		fprintf(stderr, "ERROR: Not enough args\n");
+		return EXIT_FAILURE;
+	}
 
 	int cachesize = atoi(*(argv + 1));
+	if (cachesize <= 0) {
+		fprintf(stderr, "ERROR: Invalid cache length\n");
+		return EXIT_FAILURE;
+	}
 	char *filename = *(argv + 2);
 
 	char **cache = calloc(cachesize, sizeof(char*));
@@ -30,8 +40,10 @@ int main(int argc, char **argv) {
 	size_t n = 0;
 	int c;
 
-	if (file == NULL)
-		return 0;
+	if (file == NULL) {
+		fprintf(stderr, "ERROR: Could not open file\n");
+		return EXIT_FAILURE;
+	}
 
 	// Loop through all chars in file
 	while ((c = fgetc(file)) != EOF) {
@@ -43,13 +55,13 @@ int main(int argc, char **argv) {
 				*(word + n) = '\0';
 				int h = hash(word, cachesize);
 
-				if (cache[h] == NULL) {
-					cache[h] = calloc(strlen(word)+1, sizeof(char));
-					strcpy(cache[h], word);
+				if (*(cache + h) == NULL) {
+					cache_set(cache, h, calloc(strlen(word)+1, sizeof(char)));
+					strcpy(*(cache + h), word);
 					printf("Word \"%s\" ==> %d (calloc)\n", word, h);
 				} else {
-					cache[h] = realloc(cache[h], strlen(word)+1);
-					strcpy(cache[h], word);
+					cache_set(cache, h, realloc(*(cache + h), strlen(word)+1));
+					strcpy(*(cache + h), word);
 					printf("Word \"%s\" ==> %d (realloc)\n", word, h);
 				}
 			}
@@ -63,12 +75,12 @@ int main(int argc, char **argv) {
 
 	// Print and free final cache state
 	for (int i = 0; i < cachesize; i++) {
-		if (cache[i] != NULL) {
-			printf("Cache index %d ==> \"%s\"\n", i, cache[i]);
-			free(cache[i]);
+		if (*(cache + i) != NULL) {
+			printf("Cache index %d ==> \"%s\"\n", i, *(cache + i));
+			free(*(cache + i));
 		}
 	}
 	free(cache);
 
-	return 1;
+	return EXIT_SUCCESS;
 }
