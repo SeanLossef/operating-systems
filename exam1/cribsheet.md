@@ -7,7 +7,7 @@ Returns 0 on success, -1 on failure
 
 ### Preventing holding reads
 When child closes write pipe, it adds EOF and doesn't allow hang.
-```
+```c
 /* fd table:     [each process has its own fd table]
 [PARENT]                                               [CHILD]
 0: stdin                                               0: stdin
@@ -31,19 +31,93 @@ man 2 open
 man dup2
 
 ## Scheduling Algorithms
-Probability everybody is in I/O for `n` processes and each spends `p` percent in I/O is `p^n`
+Probability everybody is in I/O for `n` processes and each spends `p` percent in I/O is `p^n`  
+TURNAROUND TIME  =  WAIT TIME  +  CPU BURST TIME  +  OVERHEAD (context switches)
 
-First Come First Serve
-Shortest Job First
-  - min wait time
-  - low turnarounf for interactive processes
-Shortest Remaining Time
-Priority Scheduling
-  - Each process assigned a priority based on
-    - CPU burst times (SJF/SRT) <= estimated
-    - ratio of CPU to I/O activity
-    - system resource usage
+  RUNNING STATE: process is actively using the CPU  
+  READY STATE: process is ready to use the CPU  
+  WAITING STATE: process is waiting for I/O operation(s) to complete  
 
+### First Come First Serve  
+### Shortest Job First
+- min wait time
+- low turnarounf for interactive processes
+
+### Shortest Remaining Time  
+### Priority Scheduling  
+Each process assigned a priority based on  
+- CPU burst times (SJF/SRT) <= estimated
+- ratio of CPU to I/O activity
+- system resource usage
+
+If preemptive, arriving processes of higher priority will be context-switched into CPU  
+Non-preemptive allows process to hold CPU indefinitely
+- Aging: to prevent starvation
+- Increase priority of process in ready queue over time
+
+### Round Robin
+FCFS with a fixed time limit on each CPU burst
+- Time quantum: finish within or preempted
+- Heuristic that 80% of CPU burst times should be less then timeslice
+```
+Apply the RR algorithm to the processes listed below using a timeslice of 3ms
+
+ pid   CPU burst times     arrival times
+ P1      20 ms                 0
+ P2       5 ms                 0
+ P3       2 ms                 2 ms
+ P4      10 ms                 4 ms
+
+QUEUE: 
+
+   RR (with timeslice of 3ms)
+    |
+  P1>XXXp    XXXp    XXXp  XXXp  XXXpXXXXX.  <== 5 preemptions
+  P2>   XXXp       XX.                       <== 1 preemption
+  P3| >    XX.                               <== 0 preemptions
+  P4|   >       XXXp    XXXp  XXXp  X.       <== 3 preemptions
+    +--------------------------------------------> time
+              111111111122222222223333333333
+    0123456789012345678901234567890123456789
+
+ What is the wait time and turnaround time for each process?
+
+ P1 has 17ms of wait time; P1 has 37ms of turnaround time
+ P2 has 11ms of wait time; P2 has 16ms of turnaround time
+ P3 has 4ms of wait time; P3 has 6ms of turnaround time
+ P4 has 18ms of wait time; P4 has 28ms of turnaround time
+```
+```
+===================================================================
+ALGORITHM   PREEMPTION?     ADVANTAGE(S)           DISADVANTAGE(S)
+
+ FCFS       non-preemptive  easy to implement      long wait times
+                            minimal overhead       long turnaround times
+                            no starvation
+
+ SJF        non-preemptive  optimal (fastest)      starvation
+                             (least average        requires us to predict
+                               wait time)            CPU burst times
+
+ SRT        preemptive                             starvation
+                                                   requires us to predict
+                                                     CPU burst times
+
+ Priority   non-preemptive  finer control over     starvation
+             or preemptive    process order
+
+ Priority   non-preemptive  no starvation          but we still have
+  w Aging    or preemptive                          long wait times for
+   (PWA)                                             low-priority processes
+
+ Round      preemptive      no starvation          longer average wait times
+  Robin      based on       fairness               increased overhead
+   (RR)       timeslice                              (more context switches)
+               expiration                          strong dependency on
+                                                     timeslice selection
+
+===================================================================
+```
 ## Exec
-`execl("/bin/ls", "ls", NULL);`
+`execl("/bin/ls", "ls", NULL);`  
 Replaces process memory if exec doesn't fail
