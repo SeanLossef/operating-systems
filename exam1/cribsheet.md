@@ -31,3 +31,10 @@ man 2 open
 man dup2
 
 ## Scheduling Algorithms
+Probability everybody is in I/O for `n` processes and each spends `p` percent in I/O is `p^n`
+
+First come first serve
+
+Shortest job first
+min wait time
+low turnarounf for interactive processes
