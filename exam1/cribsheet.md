@@ -5,7 +5,7 @@ int ret = pipe(fd);
 ```
 Returns 0 on success, -1 on failure
 
-### Preventing handing reads
+### Preventing holding reads
 When child closes write pipe, it adds EOF and doesn't allow hang.
 ```
 /* fd table:     [each process has its own fd table]
@@ -33,8 +33,17 @@ man dup2
 ## Scheduling Algorithms
 Probability everybody is in I/O for `n` processes and each spends `p` percent in I/O is `p^n`
 
-First come first serve
+First Come First Serve
+Shortest Job First
+  - min wait time
+  - low turnarounf for interactive processes
+Shortest Remaining Time
+Priority Scheduling
+  - Each process assigned a priority based on
+    - CPU burst times (SJF/SRT) <= estimated
+    - ratio of CPU to I/O activity
+    - system resource usage
 
-Shortest job first
-min wait time
-low turnarounf for interactive processes
+## Exec
+`execl("/bin/ls", "ls", NULL);`
+Replaces process memory if exec doesn't fail
