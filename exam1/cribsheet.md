@@ -27,8 +27,29 @@ if (pid == 0) {
 }
 ```
 
+## File Descriptors
+
+`int dup(int oldfd);`  
+Copies oldfd into the lowest-numbered unused descriptor.  
+If successful, new and old fd's can be used interchangeably, else return -1.  
+
+`int dup2(int oldfd, int newfd);`  
+Copies oldfd into newfd, returns new fd
+If the descriptor newfd was previously open, it is silently closed before being reused.  
+If oldfd is not a valid file descriptor, then the call fails, and newfd is not closed.  
+If oldfd is a valid file descriptor, and newfd has the same value as oldfd, then dup2() does
+nothing, and returns newfd.  
+
+`int open(const char *pathname, int flags);`  
+Returns fd, which is lowest-numbered fd not currently open for the process.  
+By default new fd is set to remain open across exec().  
+
+`ssize_t write(int fd, buffer, count);`
+On success returns number of bytes written, -1 on error.
+
 man 2 open
 man dup2
+close
 
 ## Scheduling Algorithms
 Probability everybody is in I/O for `n` processes and each spends `p` percent in I/O is `p^n`  
@@ -38,12 +59,6 @@ TURNAROUND TIME  =  WAIT TIME  +  CPU BURST TIME  +  OVERHEAD (context switches)
   READY STATE: process is ready to use the CPU  
   WAITING STATE: process is waiting for I/O operation(s) to complete  
 
-### First Come First Serve  
-### Shortest Job First
-- min wait time
-- low turnarounf for interactive processes
-
-### Shortest Remaining Time  
 ### Priority Scheduling  
 Each process assigned a priority based on  
 - CPU burst times (SJF/SRT) <= estimated
@@ -118,6 +133,18 @@ ALGORITHM   PREEMPTION?     ADVANTAGE(S)           DISADVANTAGE(S)
 
 ===================================================================
 ```
+
+### Exponential Averaging
+
+tau   -- estimated burst time  
+t     -- actual burst time  
+alpha -- constant in the range [0.0,1.0), often 0.5 or higher
+
+tau i+1   =  alpha x t i   +  (1-alpha) x tau i
+
+
 ## Exec
 `execl("/bin/ls", "ls", NULL);`  
 Replaces process memory if exec doesn't fail
+
+`strlen("Hello") = 5`
