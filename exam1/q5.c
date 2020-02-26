@@ -11,7 +11,7 @@ int main()
 
   printf( "HI\n" );
 
-#if 0
+#if 1
   close( 1 );  /* <== add this line later.... */
 #endif
 

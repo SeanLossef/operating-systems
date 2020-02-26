@@ -26,5 +26,11 @@ int main()
 
   printf( "[%3.2f][%2.2f][%2.1f]\n", *f, *g, *h );
 
+  // Free
+  free(f);
+  free(c);
+  free(d[7]);
+  free(d);
+
   return EXIT_SUCCESS;
 }
