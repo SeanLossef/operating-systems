@@ -118,7 +118,7 @@ class Scheduler:
 		turnaround /= burst_count
 
 		# Average Wait Time
-		wait = turnaround - burst - (self.cpu.t_cs * 2)
+		wait = turnaround - burst - (((burst_count + self.preemptions) * self.cpu.t_cs * 2) / burst_count)
 
 		with open("simout.txt", "a") as f:
 			print("Algorithm "+self.name, file=f)
@@ -268,8 +268,11 @@ class RR(Scheduler):
 	def ready_queue_pop(self):
 		return self.ready_queue.pop(0)
 
-	def ready_queue_push(self, p):
-		self.ready_queue.append(p)
+	def ready_queue_push(self, p, rr_add=False):
+		if rr_add and self.rr_add == "BEGINNING":
+			self.ready_queue.insert(0, p)
+		else:
+			self.ready_queue.append(p)
 
 	def alert(self, m, important=False):
 		ready = [ p.pid for p in self.ready_queue ]
@@ -289,7 +292,7 @@ class RR(Scheduler):
 		blocked = [(p.pid, p) for p in self.blocked_complete()]
 		blocked.sort()
 		for p in blocked:
-			self.ready_queue_push(p[1])
+			self.ready_queue_push(p[1], True)
 			self.alert("Process "+p[1].pid+" completed I/O; added to ready queue")
 
 		# Check for new arrivals
@@ -297,5 +300,5 @@ class RR(Scheduler):
 			if p.arrival <= self.t:
 				p.get_burst().started_at = self.t
 				self.waiting_process.remove(p)
-				self.ready_queue_push(p)
+				self.ready_queue_push(p, True)
 				self.alert("Process "+p.pid+" arrived; added to ready queue")
