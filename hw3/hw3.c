@@ -233,12 +233,12 @@ int main(int argc, char** argv) {
 		x = atoi(argv[3]);
 
 	if (m <= 2 || n <= 2) {
-		fprintf(stderr, "ERROR: Invalid inputs\n");
+		fprintf(stderr, "ERROR: Invalid argument(s)\nUSAGE: a.out <m> <n> [<x>]\n");
 		return EXIT_FAILURE;
 	}
 
 	if (x < 0 || x > m * n) {
-		fprintf(stderr, "ERROR: Invalid input x\n");
+		fprintf(stderr, "ERROR: Invalid argument(s)\nUSAGE: a.out <m> <n> [<x>]\n");
 		return EXIT_FAILURE;
 	}
 
@@ -246,7 +246,6 @@ int main(int argc, char** argv) {
 	int max_dead_ends = 1;
 	for (int i = m*n; i > x; i--)
 		max_dead_ends *= i;
-	printf("Max dead ends: %d\n", max_dead_ends);
 
 	// Initialize problem variables
 	int *max_squares = malloc(sizeof(int));
