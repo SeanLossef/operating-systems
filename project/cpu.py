@@ -83,7 +83,11 @@ class Process:
 			return self.bursts[self.current_burst].io < self.progress
 
 	def __str__(self, tau=False):
-		ret = "Process " + self.pid + " [NEW] (arrival time " + str(self.arrival) + " ms) " + str(len(self.bursts)) + " CPU bursts"
+		if len(self.bursts) == 1:
+			burstString = " CPU burst"
+		else:
+			burstString = " CPU bursts"
+		ret = "Process " + self.pid + " [NEW] (arrival time " + str(self.arrival) + " ms) " + str(len(self.bursts)) + burstString
 		if self.alpha is not None:
 			ret += " (tau "+str(self.bursts[0].tau)+"ms)"
 		return ret
