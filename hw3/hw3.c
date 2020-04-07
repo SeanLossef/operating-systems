@@ -133,7 +133,7 @@ void* pthread_handler(void *arg) {
 			printf("THREAD %ld: %d moves possible after move #%d; creating threads...\n", (long int) pthread_self(), nmoves, d->move);
 
 			pthread_t tid[nmoves];
-			
+			int max_score = 0;
 
 			// Create threads
 			for (int i = 0; i < nmoves; i++) {
@@ -160,6 +160,8 @@ void* pthread_handler(void *arg) {
 					free(ret);
 					pthread_join(tid[i], (void**) &ret);
 					printf("THREAD %ld: Thread [%ld] joined (returned %d)\n", (long int) pthread_self(), (long int) tid[i], *ret);
+					if (*ret > max_score)
+						max_score = *ret;
 					free(ret);
 				}
 				
@@ -171,6 +173,8 @@ void* pthread_handler(void *arg) {
 					int *ret = NULL;
 					pthread_join(tid[i], (void**) &ret);
 					printf("THREAD %ld: Thread [%ld] joined (returned %d)\n", (long int) pthread_self(), (long int) tid[i], *ret);
+					if (*ret > max_score)
+						max_score = *ret;
 					free(ret);
 				}
 			}
@@ -180,7 +184,7 @@ void* pthread_handler(void *arg) {
 			free(dirs);
 
 			int *ret = malloc(sizeof(int*));
-			*ret = 0;
+			*ret = max_score;
 			return ret;
 		}
 		if (nmoves == 1) {
@@ -246,6 +250,8 @@ int main(int argc, char** argv) {
 	int max_dead_ends = 1;
 	for (int i = m*n; i > x; i--)
 		max_dead_ends *= i;
+	if (max_dead_ends > 10000)
+		max_dead_ends = 10000;
 
 	// Initialize problem variables
 	int *max_squares = malloc(sizeof(int));
